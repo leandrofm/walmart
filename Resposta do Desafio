@@ -1,0 +1,145 @@
+<html>
+<head>
+
+<script type="text/javaScript">
+
+
+function montar_rota(){
+	var origem = {};
+	var dadosBrutos = document.getElementById("rotas").value.toUpperCase();
+	var rotas = dadosBrutos.split("\n");
+	i=0;
+	while (i<rotas.length){
+		var row = rotas[i].split(" ");
+		if (!origem[row[0]])
+			origem[row[0]] = {destino:[],distancia:[]};
+		origem[row[0]].destino.push(row[1]);
+		origem[row[0]].distancia.push(parseFloat(row[2]));		
+		i++;
+	}
+	return origem;
+}
+
+var rota;
+var theBestPath = {caminho:'',distancia:-1};
+function iniciar(){
+	
+	theBestPath.distancia = -1;
+	theBestPath.caminho = '';
+   	
+	var origem = document.getElementById("txtOrigem").value.toUpperCase();	
+	var destino_final = document.getElementById("txtDestino").value.toUpperCase();
+	var caminhoInicial = origem;
+	
+	rota = montar_rota();
+	if (!rota[origem]){
+	   alert("Origem inválida");
+	   return;
+	}	
+	recursiva(origem,destino_final, caminhoInicial, 0);
+	
+	document.getElementById("txtRota").value = theBestPath.caminho;
+	document.getElementById("txtDistancia").value = theBestPath.distancia;
+	
+	txtKmL = parseFloat(document.getElementById("txtKmL").value);
+	txtRsL = parseFloat(document.getElementById("txtRsL").value);
+	
+	if (theBestPath.distancia==-1){
+		alert("Destino invalido");
+		return;
+	}
+	document.getElementById("txtCusto").value = parseFloat(theBestPath.distancia) / txtKmL * txtRsL;
+				
+}
+
+function recursiva(origem,destinoFinal,caminho,distancia){
+	if (rota[origem] && origem!=destinoFinal){
+		var i = 0;
+		var total = rota[origem].destino.length;		
+		while(i<total){			
+			recursiva(rota[origem].destino[i], destinoFinal, caminho + rota[origem].destino[i], distancia + rota[origem].distancia[i]);
+			i++;
+		}
+	}else if (origem==destinoFinal){		
+		if (parseFloat(distancia) < parseFloat(theBestPath.distancia) || parseFloat(theBestPath.distancia)==-1){
+			theBestPath.distancia = distancia;
+			theBestPath.caminho = caminho;
+		}
+	}
+}
+
+</script>
+
+<style type="text/css">
+div#main{
+	margin: auto;
+    width: 60%;
+    border:3px solid #8AC007;
+    padding: 10px;
+	display: table;	
+}
+
+.cadastro { 
+	
+	width: 30%;
+	border:1px solid black;
+	padding: 10px;
+	display: table-cell;
+}
+
+.consulta { 
+	width: 60%;
+	border:1px solid black;
+	padding: 10px;
+	display: table-cell;	
+}
+
+.row {
+	display: table-row;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="main">
+    
+	<div class="row"> 
+	
+	<div class="cadastro">
+		<p>Rotas (insira aqui a rotas):</p>
+		<textarea id="rotas" style="width:180px;height:200"></textarea>
+		<br/>	
+	</div>
+
+	<div class="consulta">
+		<p>Consulta</p>
+		<table>
+		<tbody>
+			<tr><td>Ponto de origem:</td><td><input id="txtOrigem" type="text" style="width:180px;"></td></tr>
+			<tr><td>Ponto de destino:</td><td><input id="txtDestino" type="text" style="width:180px;"></td></tr>
+			<tr><td>Autonomia do caminhão (km/l):</td><td><input id="txtKmL" type="text" style="width:180px;"></td></tr>
+			<tr><td>Valor do litro do combustivel:</td><td><input id="txtRsL" type="text" style="width:180px;"></td></tr>
+			<tr><td>-</td><td></td></tr>
+			<tr><td>-</td><td></td></tr>
+			<tr><td>Melhor rota:</td><td><input id="txtRota" type="text" style="width:180px;"></td></tr>
+			<tr><td>Distancia:</td><td><input id="txtDistancia" type="text" style="width:180px;"></td></tr>
+			<tr><td>Custo(R$):</td><td><input id="txtCusto" type="text" style="width:180px;"></td></tr>
+			<tr><td>-</td></tr>
+			<tr><td><input type="button" value="Calcular" onclick="iniciar()"></td></tr>
+		</tbody>
+		</table>		
+	</div>
+	
+	</div>
+
+</div>
+
+<script type="text/javaScript">
+	document.getElementById("rotas").value = "A B 10\nB D 15\nA C 20\nC D 30\nB E 50\nD E 30";
+</script>
+</body>
+
+</html>
